@@ -3,7 +3,9 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import knex from "./database_client.js";
+import connection from "./database_client.js";
 import nestedRouter from "./routers/nested.js";
+import { StatusCodes } from "http-status-codes";
 
 const app = express();
 app.use(cors());
@@ -11,21 +13,102 @@ app.use(bodyParser.json());
 
 const apiRouter = express.Router();
 
-// You can delete this route once you add your own routes
-apiRouter.get("/", async (req, res) => {
-  const SHOW_TABLES_QUERY =
-    process.env.DB_CLIENT === "pg"
-      ? "SELECT * FROM pg_catalog.pg_tables;"
-      : "SHOW TABLES;";
-  const tables = await knex.raw(SHOW_TABLES_QUERY);
-  res.json({ tables });
-});
-
-// This nested router example can also be replaced with your own sub-router
-apiRouter.use("/nested", nestedRouter);
-
 app.use("/api", apiRouter);
 
 app.listen(process.env.PORT, () => {
   console.log(`API listening on port ${process.env.PORT}`);
+});
+
+//  Route for future-meals
+apiRouter.get("/future-meals", async (req, res) => {
+  try {
+    const [meals] = await connection.raw(
+      "SELECT * FROM meal WHERE DATE(when_time) > CURDATE();"
+    );
+    console.log(meals);
+    res.status(StatusCodes.OK).json({
+      "future-meals": meals,
+    });
+  } catch (error) {
+    console.error("Error fetching future-meals:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "Server error while fetching future-meals.",
+    });
+  }
+});
+
+//  Route for past-meals
+apiRouter.get("/past-meals", async (req, res) => {
+  try {
+    const [meals] = await connection.raw(
+      "SELECT * FROM meal WHERE DATE(when_time) < CURDATE();"
+    );
+    console.log(meals);
+    res.status(StatusCodes.OK).json({
+      "past-meals": meals,
+    });
+  } catch (error) {
+    console.error("Error fetching past-meals:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "Server error while fetching past-meals.",
+    });
+  }
+});
+
+//  Route for all-meals sorted by ID
+apiRouter.get("/all-meals", async (req, res) => {
+  try {
+    const [meals] = await connection.raw("SELECT * FROM meal ORDER BY id ASC;");
+    console.log(meals);
+    res.json({
+      "all-meals": meals,
+    });
+  } catch (error) {
+    console.error("Error fetching all-meals:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "Server error while fetching all-meals.",
+    });
+  }
+});
+
+//  Route for first-meal (min ID)
+apiRouter.get("/first-meal", async (req, res) => {
+  try {
+    const [meals] = await connection.raw(
+      "SELECT * FROM meal ORDER BY id ASC LIMIT 1;"
+    );
+    console.log(meals);
+    res.status(StatusCodes.OK).json({
+      "first-meal": meals,
+    });
+  } catch (error) {
+    console.error("Error fetching first-meal:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "Server error while fetching first-meal.",
+    });
+  }
+});
+
+//  Route for last-meal (max ID)
+apiRouter.get("/last-meal", async (req, res) => {
+  try {
+    const [meals] = await connection.raw(
+      "SELECT * FROM meal ORDER BY id DESC LIMIT 1"
+    );
+    console.log(meals);
+    if (meals.length == 0) {
+      res.status(StatusCodes.NOT_FOUND).json({
+        message: "No meals found.",
+      });
+    } else {
+      res.status(StatusCodes.OK).json({
+        "last-meal": meals,
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching last meal:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "Server error while fetching last meal.",
+    });
+  }
 });
