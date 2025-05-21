@@ -2,10 +2,11 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import knex from "./database_client.js";
 import connection from "./database_client.js";
 import nestedRouter from "./routers/nested.js";
 import { StatusCodes } from "http-status-codes";
+import mealsRouter from "./routers/meals.js";
+import reservationsRouter from "./routers/reservations.js";
 
 const app = express();
 app.use(cors());
@@ -14,6 +15,8 @@ app.use(bodyParser.json());
 const apiRouter = express.Router();
 
 app.use("/api", apiRouter);
+app.use("/api/meals", mealsRouter);
+app.use("/api/reservations", reservationsRouter);
 
 app.listen(process.env.PORT, () => {
   console.log(`API listening on port ${process.env.PORT}`);
