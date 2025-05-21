@@ -9,6 +9,7 @@ import mealsRouter from "./routers/meals.js";
 import reservationsRouter from "./routers/reservations.js";
 
 const app = express();
+const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -18,8 +19,8 @@ app.use("/api", apiRouter);
 app.use("/api/meals", mealsRouter);
 app.use("/api/reservations", reservationsRouter);
 
-app.listen(process.env.PORT, () => {
-  console.log(`API listening on port ${process.env.PORT}`);
+app.listen(PORT, () => {
+  console.log(`API listening on port ${PORT}`);
 });
 
 //  Route for future-meals
@@ -29,9 +30,15 @@ apiRouter.get("/future-meals", async (req, res) => {
       "SELECT * FROM meal WHERE DATE(when_time) > CURDATE();"
     );
     console.log(meals);
-    res.status(StatusCodes.OK).json({
-      "future-meals": meals,
-    });
+    if (meals.length === 0) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: "No meals found.",
+      });
+    } else {
+      return res.status(StatusCodes.OK).json({
+        "future-meals": meals,
+      });
+    }
   } catch (error) {
     console.error("Error fetching future-meals:", error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -47,9 +54,15 @@ apiRouter.get("/past-meals", async (req, res) => {
       "SELECT * FROM meal WHERE DATE(when_time) < CURDATE();"
     );
     console.log(meals);
-    res.status(StatusCodes.OK).json({
-      "past-meals": meals,
-    });
+    if (meals.length === 0) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: "No meals found.",
+      });
+    } else {
+      res.status(StatusCodes.OK).json({
+        "past-meals": meals,
+      });
+    }
   } catch (error) {
     console.error("Error fetching past-meals:", error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -63,9 +76,15 @@ apiRouter.get("/all-meals", async (req, res) => {
   try {
     const [meals] = await connection.raw("SELECT * FROM meal ORDER BY id ASC;");
     console.log(meals);
-    res.json({
-      "all-meals": meals,
-    });
+    if (meals.length === 0) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: "No meals found.",
+      });
+    } else {
+      res.json({
+        "all-meals": meals,
+      });
+    }
   } catch (error) {
     console.error("Error fetching all-meals:", error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -81,9 +100,15 @@ apiRouter.get("/first-meal", async (req, res) => {
       "SELECT * FROM meal ORDER BY id ASC LIMIT 1;"
     );
     console.log(meals);
-    res.status(StatusCodes.OK).json({
-      "first-meal": meals,
-    });
+    if (meals.length === 0) {
+      res.status(StatusCodes.NOT_FOUND).json({
+        message: "No meals found.",
+      });
+    } else {
+      res.status(StatusCodes.OK).json({
+        "first-meal": meals,
+      });
+    }
   } catch (error) {
     console.error("Error fetching first-meal:", error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
