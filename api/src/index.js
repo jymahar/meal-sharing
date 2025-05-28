@@ -7,6 +7,7 @@ import nestedRouter from "./routers/nested.js";
 import { StatusCodes } from "http-status-codes";
 import mealsRouter from "./routers/meals.js";
 import reservationsRouter from "./routers/reservations.js";
+import reviewRouter from "./routers/reviews.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -18,6 +19,7 @@ const apiRouter = express.Router();
 app.use("/api", apiRouter);
 app.use("/api/meals", mealsRouter);
 app.use("/api/reservations", reservationsRouter);
+app.use("/api/reviews", reviewRouter);
 
 app.listen(PORT, () => {
   console.log(`API listening on port ${PORT}`);
