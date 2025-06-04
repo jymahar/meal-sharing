@@ -30,8 +30,11 @@ mealsRouter.get("/", async (req, res) => {
           .select("meal.id", "meal.title", "meal.max_reservations")
           .count("reservation.id as no_of_bookings")
           .groupBy("meal.id", "meal.title", "meal.max_reservations")
-          .havingRaw("COUNT(reservation.id) < meal.max_reservations");
-
+          .having(
+            "no_of_bookings",
+            ">=",
+            connection.ref("meal.max_reservations")
+          );
         return res.status(StatusCodes.OK).json({
           meals: availableMeals,
         });
@@ -62,27 +65,42 @@ mealsRouter.get("/", async (req, res) => {
     // query by title:
     //Returns all meals that partially match the given title
     if (req.query.title) {
-      const title = req.query.title;
+      const title = req.query.title.trim();
       query = query.where("title", "like", `%${title}%`);
     }
 
     // query by when after date:
     //Returns all meals where the date for when is after the given date.
     if (req.query.dateAfter) {
-      const date = req.query.dateAfter;
+      const date = new Date(req.query.dateAfter);
+      if (isNaN(date.getTime())) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          error: "Invalid dateAfter, must be a valid date (YYYY-MM-DD)",
+        });
+      }
       query = query.where("when_time", ">", date);
     }
 
     // query by when before date:
     //Returns all meals where the date for when is before the given date.
     if (req.query.dateBefore) {
-      const date = req.query.dateBefore;
+      const date = new Date(req.query.dateBefore);
+      if (isNaN(date.getTime())) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          error: "Invalid dateAfter, must be a valid date (YYYY-MM-DD)",
+        });
+      }
       query = query.where("when_time", "<", date);
     }
     // Query by limit:
     //Returns the given number of meals.
     if (req.query.limit) {
-      const limit = req.query.limit;
+      const limit = Number(req.query.limit);
+      if (isNaN(limit) || limit <= 0) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          error: "Invalid limit, must be a positive number",
+        });
+      }
       query = query.limit(limit);
     }
 
@@ -122,6 +140,26 @@ mealsRouter.get("/", async (req, res) => {
 });
 
 mealsRouter.post("/", async (req, res) => {
+  const { title, description, location, when, max_reservations, price } =
+    req.body;
+
+  // Basic manual validation
+  if (
+    typeof title !== "string" ||
+    title.length < 3 ||
+    typeof location !== "string" ||
+    !location.trim() ||
+    isNaN(Date.parse(when)) ||
+    typeof max_reservations !== "number" ||
+    max_reservations < 1 ||
+    typeof price !== "number" ||
+    price < 0
+  ) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      error:
+        "Invalid input data. Please check all required fields and their types.",
+    });
+  }
   try {
     const meal = await connection.insert(req.body).into("meal");
     res.status(StatusCodes.CREATED).send("Sucessully created meal!");
@@ -135,6 +173,13 @@ mealsRouter.post("/", async (req, res) => {
 mealsRouter.get("/:id", async (req, res) => {
   try {
     const mealId = parseInt(req.params.id);
+
+    if (isNaN(mealId) || mealId <= 0) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        error: "Invalid meal ID. It must be a positive integer.",
+      });
+    }
+
     const meal = await connection("meal").where({ id: mealId }).first();
     if (meal) {
       return res.status(StatusCodes.OK).json({
@@ -156,6 +201,21 @@ mealsRouter.put("/:id", async (req, res) => {
   try {
     const mealId = parseInt(req.params.id);
     const inputFields = req.body;
+
+    // Validate mealId
+    if (isNaN(mealId) || mealId <= 0) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        error: "Invalid meal ID. Must be a positive integer.",
+      });
+    }
+
+    // Check if request body is empty
+    if (!inputFields || Object.keys(inputFields).length === 0) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        error: "No fields provided for update.",
+      });
+    }
+
     const updateMeal = await connection("meal")
       .where({ id: mealId })
       .update(inputFields);
@@ -170,6 +230,12 @@ mealsRouter.put("/:id", async (req, res) => {
 mealsRouter.delete("/:id", async (req, res) => {
   try {
     const mealId = parseInt(req.params.id);
+    if (isNaN(mealId) || mealId <= 0) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        error: "Invalid meal ID. Must be a positive integer.",
+      });
+    }
+
     const deletedMeal = await connection("meal").where({ id: mealId }).del();
     if (deletedMeal) {
       res.status(StatusCodes.OK).send("Meal Deleted Successfully!");
