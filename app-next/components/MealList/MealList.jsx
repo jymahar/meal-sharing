@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import styles from "./MealList.module.css";
+import Meal from "./Meal";
 
 const API = "http://localhost:3001/api/meals";
 
@@ -26,11 +27,7 @@ const MealList = () => {
       <h2 className={styles.heading}>Available Meals</h2>
       <div className={styles.grid}>
         {meals.map((meal) => (
-          <div key={meal.id} className={styles.card}>
-            <p className={styles.title}>{meal.title}</p>
-            <p className={styles.description}>{meal.description}</p>
-            <p className={styles.price}>Price: {meal.price} DKK</p>
-          </div>
+          <Meal key={meal.id} meal={meal} />
         ))}
       </div>
     </div>
