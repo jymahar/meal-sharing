@@ -2,15 +2,16 @@
 import React, { useState, useEffect } from "react";
 import styles from "./MealList.module.css";
 
+const API = "http://localhost:3001/api/meals";
+
 const MealList = () => {
   const [meals, setMeals] = useState([]);
 
   useEffect(() => {
     const fetchMeals = async () => {
       try {
-        const response = await fetch("http://localhost:3001/api/meals");
+        const response = await fetch(API);
         const data = await response.json();
-        console.log("Fetched data:", data);
         setMeals(data.meals);
       } catch (error) {
         console.error("Failed to fetch meals:", error);
