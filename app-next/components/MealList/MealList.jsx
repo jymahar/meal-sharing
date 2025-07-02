@@ -27,7 +27,12 @@ const MealList = () => {
       <h2 className={styles.heading}>Available Meals</h2>
       <div className={styles.grid}>
         {meals.map((meal) => (
-          <Meal key={meal.id} meal={meal} />
+          <Meal
+            title={meal.title}
+            description={meal.description}
+            price={meal.price}
+            key={meal.id}
+          />
         ))}
       </div>
     </div>

@@ -1,9 +1,7 @@
-// components/Meal.jsx
-"use client";
 import React from "react";
 import { Card, CardContent, Typography, CardActions, Box } from "@mui/material";
 
-const Meal = ({ meal }) => {
+const Meal = ({ title, description, price }) => {
   return (
     <Card
       sx={{
@@ -18,14 +16,14 @@ const Meal = ({ meal }) => {
     >
       <CardContent>
         <Typography variant="h6" component="div" gutterBottom>
-          {meal.title}
+          {title}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          {meal.description}
+          {description}
         </Typography>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="subtitle2" color="success.main">
-            {meal.price} DKK
+            {price} DKK
           </Typography>
         </Box>
       </CardContent>
