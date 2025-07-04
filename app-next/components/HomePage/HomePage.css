@@ -1,9 +1,51 @@
-.link {
+.homepage-header {
   display: flex;
-  margin: 5vh 0;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0;
+  gap: 1.5rem;
+  background-color: bisque;
 }
 
-.logo,
-.message {
-  margin: auto;
+.logo {
+  width: 60px;
+  height: auto;
+  border-radius: 28px;
+}
+.homepage-header h1 {
+  margin: 0.5rem 0;
+  font-size: 1.8rem;
+}
+
+.homepage-header h3 {
+  margin: 0.25rem 0 0.5rem;
+  font-weight: 400;
+  color: #666;
+}
+
+.see-more-container {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.see-more-btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.see-more-btn:hover {
+  background-color: #005bb5;
+}
+
+.homepage-footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: #f3f3f3;
+  margin-top: 3rem;
 }
