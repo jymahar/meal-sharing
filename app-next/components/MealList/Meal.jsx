@@ -1,7 +1,10 @@
 import React from "react";
+import styles from "./MealList.module.css";
+
 import { Card, CardContent, Typography, CardActions, Box } from "@mui/material";
 
-const Meal = ({ title, description, price }) => {
+const Meal = ({ title, description, price, id }) => {
+  const image_file = "/images/" + id + ".jpg";
   return (
     <Card
       sx={{
@@ -18,6 +21,7 @@ const Meal = ({ title, description, price }) => {
         <Typography variant="h6" component="div" gutterBottom>
           {title}
         </Typography>
+        <img src={image_file} alt={image_file} className={styles.meal_image} />
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           {description}
         </Typography>

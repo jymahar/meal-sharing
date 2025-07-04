@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./MealList.module.css";
 import Meal from "./Meal";
+import { Link } from "react-router-dom";
 
 const API = "http://localhost:3001/api/meals";
 
@@ -27,12 +28,15 @@ const MealList = () => {
       <h2 className={styles.heading}>Available Meals</h2>
       <div className={styles.grid}>
         {meals.map((meal) => (
-          <Meal
-            title={meal.title}
-            description={meal.description}
-            price={meal.price}
-            key={meal.id}
-          />
+          <Link to={`/meals/${meal.id}`} key={meal.id}>
+            <Meal
+              key={meal.id}
+              title={meal.title}
+              description={meal.description}
+              price={meal.price}
+              id={meal.id}
+            />
+          </Link>
         ))}
       </div>
     </div>

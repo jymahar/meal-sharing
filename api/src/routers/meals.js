@@ -182,6 +182,17 @@ mealsRouter.get("/:id", async (req, res) => {
 
     const meal = await connection("meal").where({ id: mealId }).first();
     if (meal) {
+      meal.image = "/images/" + mealId + ".jpg";
+
+      const totalReservations = await connection("reservation")
+        .where({ id: mealId })
+        .sum("number_of_guests as total");
+
+      const totalGuests = Number(totalReservations[0].total) || 0;
+
+      const availableReservations = meal.max_reservations - totalGuests;
+      meal.available_reservations = availableReservations;
+
       return res.status(StatusCodes.OK).json({
         meals: meal,
       });

@@ -2,17 +2,31 @@
   padding: 32px;
   max-width: 1200px;
   margin: 0 auto;
+  background-image: url(/images/bg.jpg);
 }
 
 .heading {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: bold;
   margin-bottom: 24px;
   text-align: center;
+  color: black;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 24px;
+}
+.meal-image {
+  width: 50%;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.meal-image:hover {
+  transform: scale(1.03);
 }
